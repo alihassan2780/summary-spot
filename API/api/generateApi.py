@@ -57,5 +57,3 @@ def generate():
 
 app.register_blueprint(generate_api, url_prefix='/generate')
 
-if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=5006)
