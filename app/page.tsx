@@ -26,7 +26,6 @@ const App: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<Record<number, Message[]>>({});
   const [currentChatIndex, setCurrentChatIndex] = useState<number>(0);
   const [isHomePage, setIsHomePage] = useState<boolean>(true);
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -69,125 +68,124 @@ const App: React.FC = () => {
     }
   };
 
- const createNewChat = () => {
-  const newIndex = Object.keys(chatHistory).length;
-  setChatHistory((prev) => ({ ...prev, [newIndex]: [] }));
-  setCurrentChatIndex(newIndex);
-  setIsHomePage(false);
-};
+  const createNewChat = () => {
+    const newIndex = Object.keys(chatHistory).length;
+    setChatHistory((prev) => ({ ...prev, [newIndex]: [] }));
+    setCurrentChatIndex(newIndex);
+    setIsHomePage(false);
+  };
 
-const sendMessage = async (message: string) => {
-  const timestamp = new Date().toLocaleString();
-  const updatedChat = [
-    ...(chatHistory[currentChatIndex] || []),
-    { text: message, timestamp, isUser: true },
-  ];
-  setChatHistory((prev) => ({ ...prev, [currentChatIndex]: updatedChat }));
+  const sendMessage = async (message: string) => {
+    const timestamp = new Date().toLocaleString();
+    const updatedChat = [
+      ...(chatHistory[currentChatIndex] || []),
+      { text: message, timestamp, isUser: true },
+    ];
+    setChatHistory((prev) => ({ ...prev, [currentChatIndex]: updatedChat }));
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    const response = await fetch('http://127.0.0.1:5006/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: message }),
-    });
+    try {
+      const response = await fetch('https://summary-spot.vercel.app/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: message }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Server Error: ${response.statusText}`);
-    }
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.statusText}`);
+      }
 
-    const data = await response.json();
-    if (data.response) {
-      const botMessage: Message = {
-        text: data.response,
+      const data = await response.json();
+      if (data.response) {
+        const botMessage: Message = {
+          text: data.response,
+          timestamp: new Date().toLocaleString(),
+          isUser: false,
+        };
+
+        // Update the chat history with the bot's response
+        setChatHistory((prev) => ({
+          ...prev,
+          [currentChatIndex]: [...updatedChat, botMessage],
+        }));
+      } else {
+        throw new Error('Invalid response from server.');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorResponseMessage: Message = {
+        text: `Error: ${errorMessage}`,
         timestamp: new Date().toLocaleString(),
         isUser: false,
       };
 
-      // Update the chat history with the bot's response
       setChatHistory((prev) => ({
         ...prev,
-        [currentChatIndex]: [...updatedChat, botMessage],
+        [currentChatIndex]: [...updatedChat, errorResponseMessage],
       }));
-    } else {
-      throw new Error('Invalid response from server.');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    const errorResponseMessage: Message = {
-      text: `Error: ${errorMessage}`,
-      timestamp: new Date().toLocaleString(),
-      isUser: false,
-    };
+  };
 
-    setChatHistory((prev) => ({
-      ...prev,
-      [currentChatIndex]: [...updatedChat, errorResponseMessage],
-    }));
-  } finally {
-    setIsLoading(false);
-  }
-};
+  const sendFile = async (file: File) => {
+    const timestamp = new Date().toLocaleString();
+    const updatedChat = [
+      ...(chatHistory[currentChatIndex] || []),
+      { text: file.name, timestamp, isUser: true, file },
+    ];
+    setChatHistory((prev) => ({ ...prev, [currentChatIndex]: updatedChat }));
 
-const sendFile = async (file: File) => {
-  const timestamp = new Date().toLocaleString();
-  const updatedChat = [
-    ...(chatHistory[currentChatIndex] || []),
-    { text: file.name, timestamp, isUser: true, file },
-  ];
-  setChatHistory((prev) => ({ ...prev, [currentChatIndex]: updatedChat }));
+    const formData = new FormData();
+    formData.append('file', file);
 
-  const formData = new FormData();
-  formData.append('file', file);
+    setIsLoading(true);
 
-  setIsLoading(true);
+    try {
+      const response = await fetch('https://summary-spot.vercel.app/', {
+        method: 'POST',
+        body: formData,
+      });
 
-  try {
-    const response = await fetch('http://127.0.0.1:5006/generate', {
-      method: 'POST',
-      body: formData,
-    });
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.statusText}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(`Server Error: ${response.statusText}`);
-    }
+      const data = await response.json();
+      if (data.response) {
+        const botMessage: Message = {
+          text: data.response,
+          timestamp: new Date().toLocaleString(),
+          isUser: false,
+        };
 
-    const data = await response.json();
-    if (data.response) {
-      const botMessage: Message = {
-        text: data.response,
+        // Update the chat history with the bot's response
+        setChatHistory((prev) => ({
+          ...prev,
+          [currentChatIndex]: [...updatedChat, botMessage],
+        }));
+      } else {
+        throw new Error('Invalid response from server.');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorResponseMessage: Message = {
+        text: `Error: ${errorMessage}`,
         timestamp: new Date().toLocaleString(),
         isUser: false,
       };
 
-      // Update the chat history with the bot's response
       setChatHistory((prev) => ({
         ...prev,
-        [currentChatIndex]: [...updatedChat, botMessage],
+        [currentChatIndex]: [...updatedChat, errorResponseMessage],
       }));
-    } else {
-      throw new Error('Invalid response from server.');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    const errorResponseMessage: Message = {
-      text: `Error: ${errorMessage}`,
-      timestamp: new Date().toLocaleString(),
-      isUser: false,
-    };
-
-    setChatHistory((prev) => ({
-      ...prev,
-      [currentChatIndex]: [...updatedChat, errorResponseMessage],
-    }));
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   const backToHome = () => {
     setIsHomePage(true);
@@ -198,33 +196,6 @@ const sendFile = async (file: File) => {
     setChatHistory({});
     setCurrentChatIndex(0);
   };
-
-  const applyTheme = (themeMode: 'light' | 'dark' | 'system') => {
-    if (themeMode === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.classList.toggle('dark', prefersDark);
-    } else {
-      document.documentElement.classList.toggle('dark', themeMode === 'dark');
-      document.documentElement.classList.toggle('light', themeMode === 'light');
-    }
-  };
-
-  const handleThemeChange = () => {
-    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
-    setTheme(nextTheme);
-    localStorage.setItem('theme', nextTheme);
-    applyTheme(nextTheme);
-  };
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme) {
-      setTheme(storedTheme as 'light' | 'dark' | 'system');
-      applyTheme(storedTheme as 'light' | 'dark' | 'system');
-    } else {
-      applyTheme('system');
-    }
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -260,47 +231,47 @@ const sendFile = async (file: File) => {
   }, [chatHistory, currentChatIndex, user]); 
 
   return (
-  <div className="flex flex-col h-screen">
-    <Navbar theme={theme} onThemeChange={handleThemeChange} />
-    <div className="flex flex-grow overflow-hidden">
-      <Sidebar
-        currentChatIndex={currentChatIndex}
-        chatHistory={chatHistory}
-        createNewChat={createNewChat}
-        setCurrentChatIndex={setCurrentChatIndex}
-        backToHome={backToHome}
-        deleteChat={(index: number) => {
-          const updatedChatHistory = { ...chatHistory };
-          delete updatedChatHistory[index];
-          setChatHistory(updatedChatHistory);
-          if (currentChatIndex === index) {
-            setCurrentChatIndex(0);
-          }
-        }}
-        renameChat={(index: number, newName: string) => {
-          if (newName) {
-            const updatedChat = chatHistory[index] || [];
-            updatedChat[0] = { ...updatedChat[0], text: newName };
-            setChatHistory((prev) => ({ ...prev, [index]: updatedChat }));
-          }
-        }}
-        clearHistory={clearHistory}
-      />
-      <div className="flex flex-col flex-grow">
-        {isHomePage ? (
-          <HomePage startNewChat={createNewChat} />
-        ) : (
-          <div className="flex flex-col flex-grow h-full">
-            <ChatHistory
-              chatHistory={chatHistory[currentChatIndex]}
-              isLoading={isLoading}
-            />
-            <MessageInput sendMessage={sendMessage} sendFile={sendFile} isLoading={isLoading} />
-          </div>
-        )}
+    <div className="flex flex-col h-screen">
+      <Navbar />
+      <div className="flex flex-grow overflow-hidden">
+        <Sidebar
+          currentChatIndex={currentChatIndex}
+          chatHistory={chatHistory}
+          createNewChat={createNewChat}
+          setCurrentChatIndex={setCurrentChatIndex}
+          backToHome={backToHome}
+          deleteChat={(index: number) => {
+            const updatedChatHistory = { ...chatHistory };
+            delete updatedChatHistory[index];
+            setChatHistory(updatedChatHistory);
+            if (currentChatIndex === index) {
+              setCurrentChatIndex(0);
+            }
+          }}
+          renameChat={(index: number, newName: string) => {
+            if (newName) {
+              const updatedChat = chatHistory[index] || [];
+              updatedChat[0] = { ...updatedChat[0], text: newName };
+              setChatHistory((prev) => ({ ...prev, [index]: updatedChat }));
+            }
+          }}
+          clearHistory={clearHistory}
+        />
+        <div className="flex flex-col flex-grow">
+          {isHomePage ? (
+            <HomePage startNewChat={createNewChat} />
+          ) : (
+            <div className="flex flex-col flex-grow h-full">
+              <ChatHistory
+                chatHistory={chatHistory[currentChatIndex]}
+                isLoading={isLoading}
+              />
+              <MessageInput sendMessage={sendMessage} sendFile={sendFile} isLoading={isLoading} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
   );
 };
 
