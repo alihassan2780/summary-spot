@@ -4,12 +4,7 @@ import LoginForm from './Login'; // Ensure this import matches your file structu
 import AccountInfo from './AccountInfo'; // Import the new component
 import logo from './Purple Spiral Modern Abstract Professional Technology Logo (1).png';
 
-interface NavbarProps {
-  theme: 'light' | 'dark' | 'system';
-  onThemeChange: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = () => {
+const Navbar: React.FC = () => { // Removed theme prop
   const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
   const [user, setUser] = useState<{ email: string; firstName: string; lastName: string } | null>(null);
   const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
