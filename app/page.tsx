@@ -9,9 +9,19 @@ import Navbar from './Navbar';
 import { initializeApp } from 'firebase/app';
 import { ref, set, onValue, getDatabase } from "firebase/database";
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import firebaseConfig from './firebase_config.json';
 
-const app = initializeApp(firebaseConfig);
+const app = (
+  {
+    "apiKey": "AIzaSyCbErzcAafflJucjPgkBy9AFi7sknLHpTY",
+    "authDomain": "summaryspot12.firebaseapp.com",
+    "databaseURL": "https://summaryspot12-default-rtdb.europe-west1.firebasedatabase.app",
+    "projectId": "summaryspot12",
+    "storageBucket": "summaryspot12.appspot.com",
+    "messagingSenderId": "104402233205",
+    "appId": "1:104402233205:web:49fd9f332f254ea397553c",
+    "measurementId": "G-C76HCJZ37B"
+  }
+);
 const database = getDatabase(app);
 const auth = getAuth(app);
 
