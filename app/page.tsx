@@ -87,7 +87,7 @@ const sendMessage = async (message: string) => {
   setIsLoading(true);
 
   try {
-    const response = await fetch('https://summary-spot.vercel.app/', {
+    const response = await fetch('http://127.0.0.1:5006/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ const sendFile = async (file: File) => {
   setIsLoading(true);
 
   try {
-    const response = await fetch('https://summary-spot.vercel.app/', {
+    const response = await fetch('http://127.0.0.1:5006/generate', {
       method: 'POST',
       body: formData,
     });
