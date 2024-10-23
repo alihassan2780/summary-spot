@@ -12,7 +12,7 @@ def create_app():
     app = Flask(__name__)
     
     # Setup CORS to allow requests from frontend
-    CORS(app, supports_credentials=True, resources={r"/generate/*": {"origins": "https://summary-spot.vercel.app"}})
+    CORS(app, supports_credentials=True, resources={r"/generate/*": {"origins": "*"}})
     
     # Logging setup
     logging.basicConfig(level=logging.INFO)
