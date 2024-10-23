@@ -1,0 +1,27 @@
+{
+    "version": 2,
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "/backend/api/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "frontend/$1"
+      }
+    ],
+    "builds": [
+      {
+        "src": "frontend/package.json",
+        "use": "@vercel/next"
+      },
+      {
+        "src": "backend/requirements.txt",
+        "use": "@vercel/python"
+      }
+    ],
+    "env": {
+      "GEMINI_API_KEY": "AIzaSyAP_zPIvFvc3e4sULxqi0CcvhF-g-koeQU",
+      "NEXT_PUBLIC_API_BASE_URL": "https://summary-spot.vercel.app/"
+    }
+  }
