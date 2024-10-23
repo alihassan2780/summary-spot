@@ -96,7 +96,7 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('summary-spot.vercel.app', {
+      const response = await fetch('https://summary-spot.vercel.app/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('summary-spot.vercel.app', {
+      const response = await fetch('https://summary-spot.vercel.app/', {
         method: 'POST',
         body: formData,
       });
