@@ -2,21 +2,25 @@
     "version": 2,
     "routes": [
       {
-        "src": "/api/(.*)",
-        "dest": "/backend/api/$1"
+        "src": "/api/chatApi",
+        "dest": "/API/api/chatApi.py"
+      },
+      {
+        "src": "/api/generateApi",
+        "dest": "/API/api/generateApi.py"
       },
       {
         "src": "/(.*)",
-        "dest": "frontend/$1"
+        "dest": "/app/$1"
       }
     ],
     "builds": [
       {
-        "src": "frontend/package.json",
+        "src": "summarization-bot/package.json",
         "use": "@vercel/next"
       },
       {
-        "src": "backend/requirements.txt",
+        "src": "API/api/requirements.txt",
         "use": "@vercel/python"
       }
     ],
